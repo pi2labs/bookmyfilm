@@ -1,0 +1,27 @@
+services:
+  backend:
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    container_name: frontend
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host"
+    volumes:
+      - ./frontend:/app
+      - node_modules:/app/node_modules
+    expose:
+      - "5173"
+    ports:
+      - "5173:5173"
+    networks:
+      - appnet
+
+  nginx:
+    volumes:
+      - ./nginx/bookmyfilm.dev.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - frontend
+      - backend
