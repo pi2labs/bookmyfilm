@@ -1,5 +1,4 @@
 asgiref==3.8.1
-beautifulsoup4==4.13.3
 certifi==2025.4.26
 charset-normalizer==3.4.2
 Django==4.2.19
@@ -13,5 +12,5 @@ soupsieve==2.6
 sqlparse==0.5.3
 typing_extensions==4.12.2
 urllib3==2.4.0
-selenium>=4.0.0
-webdriver-manager==3.8.6
+psycopg2-binary
+watchdog

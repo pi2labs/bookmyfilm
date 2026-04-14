@@ -1,0 +1,5 @@
+bookmyfilm/__pycache__/
+migrations/
+venv/
+.env
+.DS_Store

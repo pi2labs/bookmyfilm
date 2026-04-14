@@ -4,18 +4,15 @@ services:
     container_name: backend
     restart: always
     env_file: .env
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
     depends_on:
       - postgres
-      - selenium
     networks:
       - appnet
-  
-
-  frontend:
-    build: ./frontend
-    container_name: frontend
-    networks:
-      - appnet
+    expose:
+      - "8000"
 
   nginx:
     image: nginx:latest
@@ -25,25 +22,15 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./nginx/frontend.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - frontend
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
     networks:
-      - default
-  
-  selenium:
-    image: selenium/standalone-chrome:4.11.0-20230801
-    container_name: selenium
-    environment:
-      - VNC_PASSWORD=chrome
-    ports:
-      - "4444:4444"
-      - "7900:7900"
-    shm_size: '2gb'
+      - appnet
+
   
   postgres:
     container_name: postgres
-    image: postgres:18
+    image: postgres:16
     env_file: .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -53,8 +40,11 @@ services:
     networks:
       - appnet
 
-  networks:
-    appnet:
+networks:
+  appnet:
 
-  volumes:
-    postgres_data:
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+  node_modules:

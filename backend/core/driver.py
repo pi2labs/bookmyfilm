@@ -1,5 +1,4 @@
 from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from contextlib import contextmanager
@@ -20,14 +19,15 @@ def getdriver():
         options.page_load_strategy = "eager"
         # options.add_argument("--headless")
 
-        driver = webdriver.Remote(
-            command_executor='http://selenium:4444/wd/hub',
-            options=options
-        )
+        if os.getenv("USE_REMOTE_SELENIUM") == "true":
+            driver = webdriver.Remote(
+                command_executor=os.getenv("SELENIUM_REMOTE_URL"),
+                options=options
+            )
+        else:
+            driver = webdriver.Chrome(options=options)
 
         driver.set_page_load_timeout(30)
-
-        # driver = webdriver.Chrome(service=Service(executable_path=ChromeDriverManager().install()), options=options)
         driver.implicitly_wait(10)
         
         yield driver
