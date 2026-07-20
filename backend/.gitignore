@@ -3,3 +3,6 @@ migrations/
 venv/
 .env
 .DS_Store
+
+backend/.agents/*
+dump.sql

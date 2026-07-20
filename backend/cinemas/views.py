@@ -10,7 +10,7 @@ WINDOW_DAYS = 5
 
 # UI uses English names; DB may store German spellings (e.g. München).
 _CITY_ALIASES = {
-    "munich": ["Munich", "München", "Muenchen"],
+    "münchen": ["Munich", "München", "Muenchen"],
     "hamburg": ["Hamburg"],
     "frankfurt": ["Frankfurt", "Frankfurt am Main"],
     "berlin": ["Berlin"],
@@ -21,16 +21,18 @@ _CITY_ALIASES = {
 }
 
 
-def _city_q(city_param):
-    """OR match on canonical + alias names (case-insensitive)."""
+def _city_q(city_param, prefix):
     if not city_param or not str(city_param).strip():
         return None
+
     raw = str(city_param).strip()
     key = raw.lower()
     names = _CITY_ALIASES.get(key, [raw])
+
     q = Q()
     for name in names:
-        q |= Q(theater__city__iexact=name)
+        q |= Q(**{f"{prefix}__city__iexact": name})
+
     return q
 
 
@@ -61,22 +63,13 @@ def _window_bounds():
 def movie_list(request):
     city = (request.GET.get("city") or "").strip()
 
-    today, last_day = _window_bounds()
-    now = timezone.now()
-
-    show_qs = Showtime.objects.filter(date__gte=today, date__lte=last_day)
-    cq = _city_q(city)
-    if cq is not None:
-        show_qs = show_qs.filter(cq)
-
-    movie_ids = set()
-    for s in show_qs.select_related("movie"):
-        if _show_start_datetime(s) < now:
-            continue
-        movie_ids.add(s.movie_id)
-
     if city:
-        movies = Movie.objects.filter(id__in=movie_ids).order_by("title")
+        cq = _city_q(city, prefix="cities")
+
+        if cq is not None:
+            movies = Movie.objects.filter(cq).distinct().order_by("title")
+        else:
+            movies = Movie.objects.none()
     else:
         movies = Movie.objects.all().order_by("title")
 
@@ -120,7 +113,7 @@ def movie_detail(request, movie_title):
     )
 
     showtimes = showtimes.filter(date__gte=start_date, date__lte=last_date)
-    cq = _city_q(city)
+    cq = _city_q(city, prefix="theater")
     if cq is not None:
         showtimes = showtimes.filter(cq)
     if filter_date:

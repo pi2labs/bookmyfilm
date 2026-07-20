@@ -1,19 +1,29 @@
 from django.contrib import admin
+from import_export.admin import ImportExportModelAdmin
 from django import forms
 
 from .models import Movie, Theater, Format, Screen, Showtime, Person, MovieCast
 
 # Register your models here.
-admin.site.register(Person)
-admin.site.register(Format)
-admin.site.register(MovieCast)
+
+class PersonAdmin(ImportExportModelAdmin):
+    search_fields = ('name',)
+admin.site.register(Person, PersonAdmin)
+
+class FormatAdmin(ImportExportModelAdmin):
+    search_fields = ('name',)
+admin.site.register(Format, FormatAdmin)
+
+class MovieCastAdmin(ImportExportModelAdmin):
+    search_fields = ('movie__title', 'person__name')
+admin.site.register(MovieCast, MovieCastAdmin)
 
 @admin.register(Screen)
-class ScreenAdmin(admin.ModelAdmin):
+class ScreenAdmin(ImportExportModelAdmin):
     search_fields = ('name',)
 
 @admin.register(Theater)
-class TheaterAdmin(admin.ModelAdmin):
+class TheaterAdmin(ImportExportModelAdmin):
     search_fields = ('name',)
 
 class ShowtimeInline(admin.TabularInline):
@@ -23,8 +33,10 @@ class ShowtimeInline(admin.TabularInline):
     filter_horizontal = ('formats',)
 
 @admin.register(Movie)
-class MovieAdmin(admin.ModelAdmin):
+class MovieAdmin(ImportExportModelAdmin):
+    search_fields = ('title',)
     inlines = [ShowtimeInline]
+    autocomplete_fields = ('cast', 'directors', 'writers', 'cities')
 
 
 @admin.action(description="Duplicate selected showtimes")
@@ -52,8 +64,18 @@ class ShowtimeAdminForm(forms.ModelForm):
             self.fields['screen'].queryset = Screen.objects.none()
 
 
-class ShowtimeAdmin(admin.ModelAdmin):
+class ShowtimeAdmin(ImportExportModelAdmin):
+    class Meta:
+        unique_together = (
+        'movie',
+        'theater',
+        'screen',
+        'date',
+        'start_time',
+    )
+    
     list_display = ('movie', 'theater', 'date', 'formatted_time', 'screen', 'price')
+    autocomplete_fields = ('movie', 'theater', 'screen')
     actions = [duplicate_showtimes]
     ordering = ('screen', 'date', 'start_time')
     save_as = True

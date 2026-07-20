@@ -10,6 +10,13 @@ class Person(models.Model):
     def __str__(self):
         return self.name
 
+class Theater(models.Model):
+    name = models.CharField(max_length=255)
+    city = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.name} ({self.city})"
+
 class Movie(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField(unique=True, blank=True)
@@ -20,6 +27,8 @@ class Movie(models.Model):
     age_group=models.CharField(max_length=2, blank=True)
     # 🎭 Many actors
     cast = models.ManyToManyField(Person, related_name='acted_movies', blank=True)
+
+    cities = models.ManyToManyField(Theater, blank=True)
 
     # 🎥 Directors (can be multiple)
     directors = models.ManyToManyField(Person, related_name='directed_movies', blank=True)
@@ -51,13 +60,6 @@ class Movie(models.Model):
     def __str__(self) -> str:
         return self.title
 
-
-class Theater(models.Model):
-    name = models.CharField(max_length=255)
-    city = models.CharField(max_length=100)
-
-    def __str__(self):
-        return f"{self.name} ({self.city})"
     
 
 class Format(models.Model):

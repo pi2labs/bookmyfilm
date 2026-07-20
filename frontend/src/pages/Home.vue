@@ -1,11 +1,14 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '../api'
 
 const movies = ref([])
 const route = useRoute()
 const router = useRouter()
+
+const theme = inject('theme')
+const isDarkMode = computed(() => theme?.isDarkMode?.value ?? false)
 
 async function loadMovies() {
   const params = {}
@@ -88,34 +91,66 @@ function genreLabel(genres) {
               </div>
             </div>
 
-            <p class="mt-2 text-sm font-bold text-slate-100 leading-snug line-clamp-2">
+            <p 
+              :class="[
+                'mt-2 text-sm font-bold leading-snug line-clamp-2',
+                isDarkMode ? 'text-slate-100' : 'text-slate-800'
+              ]"
+            >
               {{ movie.title }}
             </p>
-            <p v-if="movie.release_date" class="text-slate-400">
+            <p 
+              v-if="movie.release_date" 
+              :class="isDarkMode ? 'text-slate-400' : 'text-slate-600'"
+            >
               Ab {{ new Date(movie.release_date).toLocaleDateString('de-DE') }}
             </p>
             <p
               v-if="genreLabel(movie.genres)"
-              class="mt-0.5 text-xs text-slate-400 line-clamp-2"
+              :class="[
+                'mt-0.5 text-xs line-clamp-2',
+                isDarkMode ? 'text-slate-400' : 'text-slate-600'
+              ]"
             >
               {{ genreLabel(movie.genres) }}
             </p>
           </div>
         </div>
 
-        <div class="my-10 text-center border border-slate-700/80 bg-slate-900/40 p-6 rounded-xl">
-          <p class="text-slate-500">Ad Space</p>
+        <div 
+          :class="[
+            'my-10 text-center border p-6 rounded-xl',
+            isDarkMode 
+              ? 'border-slate-700/80 bg-slate-900/40' 
+              : 'border-slate-200 bg-slate-100/50'
+          ]"
+        >
+          <p :class="isDarkMode ? 'text-slate-500' : 'text-slate-400'">Ad Space</p>
         </div>
       </div>
 
       <div class="w-full lg:w-64 shrink-0 space-y-6 hidden lg:block">
 
-        <div class="border border-slate-700/80 bg-slate-900/40 p-6 text-center rounded-xl">
-          <p class="text-slate-500">Ad Space</p>
+        <div 
+          :class="[
+            'border p-6 text-center rounded-xl',
+            isDarkMode 
+              ? 'border-slate-700/80 bg-slate-900/40' 
+              : 'border-slate-200 bg-slate-100/50'
+          ]"
+        >
+          <p :class="isDarkMode ? 'text-slate-500' : 'text-slate-400'">Ad Space</p>
         </div>
 
-        <div class="border border-slate-700/80 bg-slate-900/40 p-6 text-center rounded-xl">
-          <p class="text-slate-500">Ad Space</p>
+        <div 
+          :class="[
+            'border p-6 text-center rounded-xl',
+            isDarkMode 
+              ? 'border-slate-700/80 bg-slate-900/40' 
+              : 'border-slate-200 bg-slate-100/50'
+          ]"
+        >
+          <p :class="isDarkMode ? 'text-slate-500' : 'text-slate-400'">Ad Space</p>
         </div>
       </div>
 

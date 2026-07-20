@@ -1,1 +1,4 @@
 .env
+.qodo
+dump.sql
+.DS_Store
