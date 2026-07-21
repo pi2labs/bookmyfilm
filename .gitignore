@@ -1,0 +1,7 @@
+.env
+.env.local
+bookmyfilm_backup.sql
+bookmyfilm_node_modules.tar.gz
+bookmyfilm_postgres_data.tar.gz
+dump.sql
+venv/

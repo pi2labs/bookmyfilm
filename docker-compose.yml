@@ -1,0 +1,50 @@
+services:
+  backend:
+    build: ./backend
+    container_name: backend
+    restart: always
+    env_file: .env
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    depends_on:
+      - postgres
+    networks:
+      - appnet
+    expose:
+      - "8000"
+
+  nginx:
+    image: nginx:latest
+    platform: linux/arm64
+    container_name: nginx
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    networks:
+      - appnet
+
+  
+  postgres:
+    container_name: postgres
+    image: postgres:16
+    env_file: .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5332:5432"
+    restart: unless-stopped
+    networks:
+      - appnet
+
+networks:
+  appnet:
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+  node_modules:
